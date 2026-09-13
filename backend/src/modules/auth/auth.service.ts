@@ -29,7 +29,7 @@ async function verificarRecaptcha(captcha: string) {
 }
 
 export function signAccessToken(payload: { id: string; correo: string; rol: string }): string {
-  const options: SignOptions = { expiresIn: '15m' }
+  const options: SignOptions = { expiresIn: '12h' }
   return jwt.sign(
     { sub: payload.id.toString(), correo: payload.correo, rol: payload.rol, type: 'access' },
     env.JWT_SECRET,
@@ -69,7 +69,20 @@ export async function login(input: LoginInput) {
 export async function getPerfil(idUsuario: string) {
   const usuario = await prisma.usuario.findUnique({
     where: { idUsuario },
-    select: { idUsuario: true, nombre: true, correo: true, rol: true, estado: true, createdAt: true },
+    select: { 
+      idUsuario: true, 
+      nombre: true, 
+      correo: true, 
+      rol: true, 
+      estado: true, 
+      createdAt: true,
+      identificacion: true,
+      correoPersonal: true,
+      direccion: true,
+      celular: true,
+      fechaNacimiento: true,
+      fechaIngreso: true
+    },
   })
   if (!usuario) { throw ApiError.notFound('Usuario no encontrado') }
   return usuario
