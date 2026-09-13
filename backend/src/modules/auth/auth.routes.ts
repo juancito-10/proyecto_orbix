@@ -14,6 +14,7 @@ const loginLimiter1 = rateLimit({
   limit: 5, // Límite de 5 intentos
   standardHeaders: 'draft-7',
   legacyHeaders: false,
+  skipSuccessfulRequests: true,
   message: { success: false, message: 'Demasiados intentos fallidos. Por favor intente de nuevo en 5 minutos.' }
 })
 
@@ -22,6 +23,7 @@ const loginLimiter2 = rateLimit({
   limit: 10, // Si llega a 10 (es decir, falla otros 5), se bloquea por 30 mins
   standardHeaders: 'draft-7',
   legacyHeaders: false,
+  skipSuccessfulRequests: true,
   message: { success: false, message: 'Ha excedido el límite de seguridad. Por favor intente de nuevo en 30 minutos.' }
 })
 
@@ -41,4 +43,5 @@ router.patch(
 )
 
 export default router
+
 
