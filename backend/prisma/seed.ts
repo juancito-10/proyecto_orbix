@@ -36,7 +36,7 @@ async function main() {
   const usuariosData = [
     { nombre: 'Vanessa Ocampo', correo: 'vanessa@orbix.com', password: 'admin123', rol: 'admin' as const },
     { nombre: 'Andrés Portillo', correo: 'andres@orbix.com', password: 'dev123', rol: 'inventario' as const },
-    { nombre: 'Juan David Noriega', correo: 'juan@orbix.com', password: 'venta123', rol: 'vendedor' as const },
+    { nombre: 'Juan David Noriega', correo: 'juan@orbix.com', password: 'ventas123', rol: 'vendedor' as const },
   ]
   const usuarios = []
   for (const u of usuariosData) {
@@ -134,3 +134,4 @@ async function main() {
 }
 
 main().catch(console.error).finally(() => prisma.$disconnect())
+
