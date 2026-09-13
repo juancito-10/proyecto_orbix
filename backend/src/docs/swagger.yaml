@@ -1,0 +1,108 @@
+﻿openapi: 3.0.0
+info:
+  title: API de Orbix
+  description: Documentación oficial de la API de Orbix. (Auth, Usuarios, Inventario, Ventas, Reportes)
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Servidor Local
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+paths:
+  /auth/login:
+    post:
+      summary: Iniciar sesión
+      security: []
+      tags:
+        - Autenticación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                correo:
+                  type: string
+                  example: admin@orbix.com
+                password:
+                  type: string
+                  example: admin123
+                captcha:
+                  type: string
+                  example: no-robot
+      responses:
+        '200':
+          description: OK
+  /auth/me:
+    get:
+      summary: Obtener perfil actual
+      tags:
+        - Autenticación
+      responses:
+        '200':
+          description: OK
+    patch:
+      summary: Actualizar perfil actual
+      tags:
+        - Autenticación
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                celular:
+                  type: string
+                direccion:
+                  type: string
+      responses:
+        '200':
+          description: Perfil actualizado correctamente
+  /auth/logout:
+    post:
+      summary: Cerrar sesión
+      tags:
+        - Autenticación
+      responses:
+        '200':
+          description: OK
+  /usuarios:
+    get:
+      summary: Obtener lista de usuarios (Solo Admin)
+      tags:
+        - Usuarios
+      responses:
+        '200':
+          description: OK
+  /productos:
+    get:
+      summary: Obtener lista de productos
+      tags:
+        - Inventario
+      responses:
+        '200':
+          description: OK
+  /ventas:
+    get:
+      summary: Obtener lista de ventas
+      tags:
+        - Ventas
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Registrar una nueva venta
+      tags:
+        - Ventas
+      responses:
+        '201':
+          description: Venta creada

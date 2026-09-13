@@ -1,9 +1,12 @@
-import express, { Express } from 'express'
+﻿import express, { Express } from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 import routes from './routes'
+import swaggerUi from 'swagger-ui-express'
+import YAML from 'yamljs'
+import path from 'path'
 import { notFound, errorHandler } from './middlewares/errorHandler'
 
 import { rateLimit } from 'express-rate-limit'
@@ -14,7 +17,7 @@ export function createApp(): Express {
   // Rate Limiting general
   const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
-    limit: 100, // Límite de 100 peticiones por ventana por IP
+    limit: 100, // LÃ­mite de 100 peticiones por ventana por IP
     standardHeaders: 'draft-7',
     legacyHeaders: false,
     message: { success: false, message: 'Demasiadas peticiones desde esta IP, por favor intente de nuevo en 15 minutos' }
@@ -37,8 +40,12 @@ export function createApp(): Express {
 
   app.use('/api/v1', routes)
 
+  const swaggerDocument = YAML.load(path.join(__dirname, 'docs', 'swagger.yaml'))
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+
   app.use(notFound)
   app.use(errorHandler)
 
   return app
 }
+
