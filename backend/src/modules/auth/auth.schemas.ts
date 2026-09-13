@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  correo: z.string().email("Correo inválido"),
+  correo: z.string().trim().email("Correo inválido"),
 
-  password: z.string().min(1, "La contraseña es obligatoria"),
+  password: z.string().trim().min(1, "La contraseña es obligatoria"),
 
   captcha: z.string().min(1, "La verificación reCAPTCHA es obligatoria"),
 });
@@ -15,3 +15,4 @@ export const changePasswordSchema = z.object({
     .string()
     .min(6, "La nueva contraseña debe tener al menos 6 caracteres"),
 });
+
