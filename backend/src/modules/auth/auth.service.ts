@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs'
+﻿import bcrypt from 'bcryptjs'
 import jwt, { type SignOptions } from 'jsonwebtoken'
 import { env } from '../../config/env'
 import { prisma } from '../../config/prisma'
@@ -24,7 +24,7 @@ async function verificarRecaptcha(captcha: string) {
   })
   const data = await response.json() as { success: boolean; 'error-codes'?: string[] }
   if (!data.success) {
-    throw ApiError.unauthorized('La verificación reCAPTCHA no es válida')
+    throw ApiError.unauthorized('La verificaciÃ³n reCAPTCHA no es vÃ¡lida')
   }
 }
 
@@ -50,11 +50,11 @@ export async function login(input: LoginInput) {
   await verificarRecaptcha(input.captcha)
   const usuario = await prisma.usuario.findUnique({ where: { correo: input.correo } })
 
-  if (!usuario) { throw ApiError.unauthorized('Credenciales inválidas') }
-  if (usuario.estado !== 'activo') { throw ApiError.unauthorized('El usuario está inactivo') }
+  if (!usuario) { throw ApiError.unauthorized('Credenciales invÃ¡lidas') }
+  if (usuario.estado !== 'activo') { throw ApiError.unauthorized('El usuario estÃ¡ inactivo') }
 
   const passwordValida = await bcrypt.compare(input.password, usuario.passwordHash)
-  if (!passwordValida) { throw ApiError.unauthorized('Credenciales inválidas') }
+  if (!passwordValida) { throw ApiError.unauthorized('Credenciales invÃ¡lidas') }
 
   const accessToken = signAccessToken({ id: usuario.idUsuario, correo: usuario.correo, rol: usuario.rol })
   const refreshToken = signRefreshToken({ id: usuario.idUsuario })
@@ -93,7 +93,7 @@ export async function changePassword(input: ChangePasswordInput) {
   if (!usuario) { throw ApiError.notFound('Usuario no encontrado') }
 
   const passwordValida = await bcrypt.compare(input.passwordActual, usuario.passwordHash)
-  if (!passwordValida) { throw ApiError.unauthorized('La contraseña actual no es correcta') }
+  if (!passwordValida) { throw ApiError.unauthorized('La contraseÃ±a actual no es correcta') }
 
   const passwordHash = await bcrypt.hash(input.passwordNueva, 10)
   await prisma.usuario.update({ where: { idUsuario: input.idUsuario }, data: { passwordHash } })
@@ -108,12 +108,33 @@ export async function refreshTokenLogic(token: string) {
 
     const usuario = await prisma.usuario.findUnique({ where: { idUsuario: payload.sub } })
     if (!usuario || usuario.estado !== 'activo') {
-      throw ApiError.unauthorized('Usuario inválido o inactivo')
+      throw ApiError.unauthorized('Usuario invÃ¡lido o inactivo')
     }
 
     const accessToken = signAccessToken({ id: usuario.idUsuario, correo: usuario.correo, rol: usuario.rol })
     return { accessToken }
   } catch (error) {
-    throw ApiError.unauthorized('Refresh token inválido o expirado')
+    throw ApiError.unauthorized('Refresh token invÃ¡lido o expirado')
   }
+}
+
+export async function updateProfile(idUsuario: string, data: { nombre?: string; celular?: string; direccion?: string }) {
+  const usuario = await prisma.usuario.update({
+    where: { idUsuario },
+    data,
+    select: {
+      idUsuario: true,
+      nombre: true,
+      correo: true,
+      rol: true,
+      identificacion: true,
+      correoPersonal: true,
+      celular: true,
+      direccion: true,
+      fechaNacimiento: true,
+      fechaIngreso: true,
+      estado: true
+    }
+  });
+  return usuario;
 }
