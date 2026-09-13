@@ -3,7 +3,7 @@ import { authenticate } from '../../middlewares/auth'
 import { validate } from '../../middlewares/validate'
 import { asyncHandler } from '../../utils/asyncHandler'
 import * as authController from './auth.controller'
-import { changePasswordSchema, loginSchema } from './auth.schemas'
+import { changePasswordSchema, loginSchema, updateProfileSchema } from './auth.schemas'
 
 import { rateLimit } from 'express-rate-limit'
 
@@ -31,6 +31,8 @@ router.post('/logout', asyncHandler(authController.logout))
 
 router.get('/me', authenticate, asyncHandler(authController.perfil))
 
+router.patch('/me', authenticate, validate({ body: updateProfileSchema }), asyncHandler(authController.updateProfile))
+
 router.patch(
   '/change-password',
   authenticate,
@@ -39,3 +41,4 @@ router.patch(
 )
 
 export default router
+

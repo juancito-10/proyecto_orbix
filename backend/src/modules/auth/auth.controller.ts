@@ -70,3 +70,13 @@ export async function logout(req: Request, res: Response) {
   res.clearCookie('accessToken')
   res.status(200).json({ success: true, message: 'Sesión cerrada correctamente' })
 }
+
+export async function updateProfile(req: Request, res: Response) {
+  const usuarioActualizado = await authService.updateProfile(req.user!.id, req.body);
+  res.status(200).json({
+    success: true,
+    data: usuarioActualizado,
+    message: 'Perfil actualizado correctamente'
+  });
+}
+
