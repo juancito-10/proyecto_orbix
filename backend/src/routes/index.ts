@@ -1,4 +1,5 @@
 import { Router } from 'express'
+
 import authRoutes from '../modules/auth/auth.routes'
 import categoriaRoutes from '../modules/categorias/categoria.routes'
 import proveedorRoutes from '../modules/proveedores/proveedor.routes'
@@ -8,6 +9,7 @@ import productoRoutes from '../modules/productos/producto.routes'
 import ventaRoutes from '../modules/ventas/venta.routes'
 import inventarioRoutes from '../modules/inventario/inventario.routes'
 import reporteRoutes from '../modules/reportes/reporte.routes'
+import emailRoutes from '../modules/correo/email.routes'
 
 const router = Router()
 
@@ -21,6 +23,7 @@ const routes = [
   { path: '/ventas', router: ventaRoutes },
   { path: '/inventario', router: inventarioRoutes },
   { path: '/reportes', router: reporteRoutes },
+  { path: '/email', router: emailRoutes },
 ]
 
 for (const { path, router: route } of routes) {

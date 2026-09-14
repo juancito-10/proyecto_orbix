@@ -14,6 +14,10 @@ const envSchema = z.object({
 
   RECAPTCHA_SECRET_KEY: z.string().min(1, 'RECAPTCHA_SECRET_KEY es obligatoria'),
 
+  AZURE_EMAIL_CONNECTION_STRING: z.string().min(1, 'AZURE_EMAIL_CONNECTION_STRING es obligatoria'),
+
+  AZURE_EMAIL_FROM: z.string().email('AZURE_EMAIL_FROM debe ser un correo válido'),
+
 })
 
 const parsed = envSchema.safeParse(process.env)
@@ -27,7 +31,6 @@ if (!parsed.success) {
   )
 
   throw new Error('Configuración de entorno inválida')
-
 }
 
 export const env = parsed.data

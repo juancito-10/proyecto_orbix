@@ -21,6 +21,7 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "@azure/communication-email": "^1.1.0",
     "@prisma/client": "^6.19.3",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
@@ -51,4 +52,3 @@
   },
   "allowScripts": {}
 }
-
