@@ -17,18 +17,19 @@ import type {
 type CreateUsuarioInput = {
   nombre: string;
   correo: string;
+  correoPersonal?: string;
   celular?: string;
   ciudad?: string;
   fechaIngreso?: Date;
   password: string;
   rol?: RolUsuario;
   estado?: EstadoGeneral;
+  codigoEmpleado?: string;
 };
 
 type UpdateUsuarioInput = Partial<
   Omit<CreateUsuarioInput, "password"> & {
     password?: string;
-    codigoEmpleado?: string;
   }
 >;
 
@@ -43,6 +44,7 @@ const safeSelect = {
   codigo_empleado: true,
   nombre: true,
   correo: true,
+  correoPersonal: true,
   celular: true,
   ciudad: true,
   fechaIngreso: true,
@@ -62,6 +64,9 @@ function formatUsuario(usuario: any) {
     nombre: usuario.nombre,
 
     correo: usuario.correo,
+
+    correoPersonal:
+      usuario.correoPersonal ?? null,
 
     celular:
       usuario.celular ?? null,
@@ -146,6 +151,9 @@ export async function create(
         correo:
           data.correo,
 
+        correoPersonal:
+          data.correoPersonal,
+
         celular:
           data.celular,
 
@@ -194,6 +202,13 @@ export async function list(
           },
           {
             correo: {
+              contains: search,
+              mode:
+                "insensitive" as const,
+            },
+          },
+          {
+            correoPersonal: {
               contains: search,
               mode:
                 "insensitive" as const,

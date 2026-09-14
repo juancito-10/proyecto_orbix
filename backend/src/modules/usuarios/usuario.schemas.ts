@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { EstadoGeneral, RolUsuario } from '@prisma/client'
 
 export const createUsuarioSchema = z.object({
+
   codigoEmpleado: z
     .string()
     .trim()
@@ -20,6 +21,13 @@ export const createUsuarioSchema = z.object({
     .trim()
     .email('Correo inválido')
     .max(120),
+
+  correoPersonal: z
+    .string()
+    .trim()
+    .email('Correo personal inválido')
+    .max(120)
+    .optional(),
 
   celular: z
     .string()
@@ -50,9 +58,11 @@ export const createUsuarioSchema = z.object({
   estado: z
     .nativeEnum(EstadoGeneral)
     .optional(),
+
 })
 
 export const updateUsuarioSchema = z.object({
+
   codigoEmpleado: z
     .string()
     .trim()
@@ -70,6 +80,13 @@ export const updateUsuarioSchema = z.object({
     .string()
     .trim()
     .email('Correo inválido')
+    .max(120)
+    .optional(),
+
+  correoPersonal: z
+    .string()
+    .trim()
+    .email('Correo personal inválido')
     .max(120)
     .optional(),
 
@@ -103,4 +120,5 @@ export const updateUsuarioSchema = z.object({
   estado: z
     .nativeEnum(EstadoGeneral)
     .optional(),
+
 })
