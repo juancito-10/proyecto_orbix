@@ -8,26 +8,39 @@ import swaggerUi from 'swagger-ui-express'
 import YAML from 'yamljs'
 import path from 'path'
 import { notFound, errorHandler } from './middlewares/errorHandler'
-
 import { rateLimit } from 'express-rate-limit'
+import emailRoutes from './modules/correo/email.routes'
 
 export function createApp(): Express {
   const app = express()
 
-  // Rate Limiting general
   const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    limit: 100, // LÃ­mite de 100 peticiones por ventana por IP
+    windowMs: 15 * 60 * 1000,
+    limit: 100,
     standardHeaders: 'draft-7',
     legacyHeaders: false,
-    message: { success: false, message: 'Demasiadas peticiones desde esta IP, por favor intente de nuevo en 15 minutos' }
+    message: {
+      success: false,
+      message:
+        'Demasiadas peticiones desde esta IP, por favor intente de nuevo en 15 minutos',
+    },
   })
+
   app.use(limiter)
 
   app.use(helmet())
-  app.use(cors({ origin: 'http://localhost:5173', credentials: true }))
+
+  app.use(
+    cors({
+      origin: 'http://localhost:5173',
+      credentials: true,
+    })
+  )
+
   app.use(cookieParser())
+
   app.use(express.json({ limit: '10mb' }))
+
   app.use(express.urlencoded({ extended: true }))
 
   if (process.env.NODE_ENV !== 'production') {
@@ -35,17 +48,29 @@ export function createApp(): Express {
   }
 
   app.get('/health', (_req, res) => {
-    res.status(200).json({ success: true, message: 'Orbix API funcionando' })
+    res.status(200).json({
+      success: true,
+      message: 'Orbix API funcionando',
+    })
   })
 
   app.use('/api/v1', routes)
 
-  const swaggerDocument = YAML.load(path.join(__dirname, 'docs', 'swagger.yaml'))
-  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+  app.use('/api/v1/email', emailRoutes)
+
+  const swaggerDocument = YAML.load(
+    path.join(__dirname, 'docs', 'swagger.yaml')
+  )
+
+  app.use(
+    '/api/docs',
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerDocument)
+  )
 
   app.use(notFound)
+
   app.use(errorHandler)
 
   return app
 }
-

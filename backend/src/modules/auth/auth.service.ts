@@ -3,6 +3,8 @@ import jwt, { type SignOptions } from 'jsonwebtoken'
 import { env } from '../../config/env'
 import { prisma } from '../../config/prisma'
 import { ApiError } from '../../utils/ApiError'
+import crypto from 'crypto'
+import { sendEmail } from '../correo/email.service'
 
 type LoginInput = {
   correo: string
@@ -138,5 +140,122 @@ export async function updateProfile(idUsuario: string, data: { nombre?: string; 
     }
   });
   return usuario;
+}
+
+export async function forgotPassword(correo: string) {
+  const usuario = await prisma.usuario.findUnique({
+    where: { correo },
+  })
+
+  if (!usuario) {
+    return
+  }
+
+  if (usuario.estado !== 'activo') {
+    return
+  }
+
+  // Verificar que el usuario tenga un correo personal registrado
+  if (!usuario.correoPersonal) {
+    throw ApiError.badRequest(
+      'El usuario no tiene un correo personal registrado'
+    )
+  }
+
+  const token = crypto.randomBytes(32).toString('hex')
+
+  const expires = new Date(Date.now() + 15 * 60 * 1000)
+
+  await prisma.usuario.update({
+    where: { idUsuario: usuario.idUsuario },
+    data: {
+      resetPasswordToken: token,
+      resetPasswordExpires: expires,
+    },
+  })
+
+  const frontendUrl = 'http://localhost:5173'
+
+  const resetUrl = `${frontendUrl}/reset-password?token=${token}`
+
+  const html = `
+    <h2>Recuperación de contraseña - Orbix</h2>
+
+    <p>Hola ${usuario.nombre},</p>
+
+    <p>
+      Hemos recibido una solicitud para restablecer la contraseña de tu cuenta.
+    </p>
+
+    <p>
+      Haz clic en el siguiente botón para crear una nueva contraseña:
+    </p>
+
+    <p>
+      <a
+        href="${resetUrl}"
+        style="
+          display: inline-block;
+          padding: 12px 20px;
+          background-color: #2563eb;
+          color: white;
+          text-decoration: none;
+          border-radius: 6px;
+        "
+      >
+        Restablecer contraseña
+      </a>
+    </p>
+
+    <p>
+      Este enlace será válido durante 15 minutos.
+    </p>
+
+    <p>
+      Si tú no solicitaste este cambio, puedes ignorar este correo.
+    </p>
+
+    <p>
+      Saludos,<br>
+      Equipo Orbix
+    </p>
+  `
+
+  // IMPORTANTE:
+  // El correo de recuperación se envía al correo PERSONAL
+  await sendEmail(
+    usuario.correoPersonal,
+    'Recuperación de contraseña - Orbix',
+    html
+  )
+}
+
+export async function resetPassword(
+  token: string,
+  passwordNueva: string
+) {
+  const usuario = await prisma.usuario.findFirst({
+    where: {
+      resetPasswordToken: token,
+      resetPasswordExpires: {
+        gt: new Date(),
+      },
+    },
+  })
+
+  if (!usuario) {
+    throw ApiError.badRequest('El enlace de recuperación es inválido o ha expirado')
+  }
+
+  const passwordHash = await bcrypt.hash(passwordNueva, 10)
+
+  await prisma.usuario.update({
+    where: { idUsuario: usuario.idUsuario },
+    data: {
+      passwordHash,
+      resetPasswordToken: null,
+      resetPasswordExpires: null,
+    },
+  })
 }
 

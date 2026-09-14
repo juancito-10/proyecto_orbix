@@ -26,7 +26,7 @@ export async function list(query: ListQuery) {
 
   const [total, items] = await Promise.all([
     prisma.proveedor.count({ where }),
-    prisma.proveedor.findMany({ where, skip, take: limit, orderBy: { nombre: 'asc' } }),
+    prisma.proveedor.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
   ])
 
   return { items, meta: buildMeta(page, limit, total) }

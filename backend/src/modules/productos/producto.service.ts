@@ -108,7 +108,7 @@ export async function list(query: ListQuery) {
       skip,
       take: limit,
       orderBy: {
-        nombre: 'asc',
+        createdAt: 'desc',
       },
       include,
     }),
