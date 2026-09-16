@@ -16,7 +16,7 @@ export function createApp(): Express {
 
   const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 100,
+    limit: 1000,
     standardHeaders: 'draft-7',
     legacyHeaders: false,
     message: {
@@ -26,16 +26,11 @@ export function createApp(): Express {
     },
   })
 
-  app.use(limiter)
+  app.use(cors({ origin: 'http://localhost:5173', credentials: true })); app.use(limiter)
 
   app.use(helmet())
 
-  app.use(
-    cors({
-      origin: 'http://localhost:5173',
-      credentials: true,
-    })
-  )
+  // cors was moved above
 
   app.use(cookieParser())
 
