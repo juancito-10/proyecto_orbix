@@ -1,0 +1,68 @@
+﻿name: CI
+
+on:
+  push:
+    branches: [ "dev", "main" ]
+  pull_request:
+    branches: [ "dev", "main" ]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js $\{{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: $\{{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: './backend/package-lock.json'
+
+    - name: Install dependencies
+      working-directory: ./backend
+      run: npm ci
+
+    - name: Generate Prisma Client
+      working-directory: ./backend
+      run: npx prisma generate
+
+    - name: Build backend
+      working-directory: ./backend
+      run: npm run build
+
+    - name: Run backend tests
+      working-directory: ./backend
+      run: npm run test
+
+  frontend:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js $\{{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: $\{{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: './proyecto_orbix_Frontend/frontend/package-lock.json'
+
+    - name: Install dependencies
+      working-directory: ./proyecto_orbix_Frontend/frontend
+      run: npm ci
+
+    - name: Run frontend tests
+      working-directory: ./proyecto_orbix_Frontend/frontend
+      run: npm run test
+
+    - name: Build frontend
+      working-directory: ./proyecto_orbix_Frontend/frontend
+      run: npm run build
