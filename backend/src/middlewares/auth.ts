@@ -9,40 +9,83 @@ type JwtPayload = {
   sub: string
   correo: string
   rol: RolUsuario
+  type?: string
 }
 
-export const authenticate: RequestHandler = asyncHandler(async (req, _res, next) => {
-  let token = req.cookies?.accessToken
+export const authenticate: RequestHandler = asyncHandler(
+  async (req, _res, next) => {
+    let token = req.cookies?.accessToken
 
-  if (!token) {
-    const authHeader = req.headers.authorization
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      token = authHeader.slice('Bearer '.length)
+    // Se mantiene temporalmente como compatibilidad
+    // mientras el frontend termina la migración a cookies.
+    if (!token) {
+      const authHeader = req.headers.authorization
+
+      if (
+        authHeader &&
+        authHeader.startsWith('Bearer ')
+      ) {
+        token = authHeader.slice('Bearer '.length)
+      }
+    }
+
+    if (!token) {
+      throw ApiError.unauthorized(
+        'Token de autenticación requerido'
+      )
+    }
+
+    try {
+      const payload = jwt.verify(
+        token,
+        env.JWT_SECRET
+      ) as JwtPayload
+
+      if (payload.type !== 'access') {
+        throw ApiError.unauthorized(
+          'Token de acceso inválido'
+        )
+      }
+
+      req.user = {
+        id: payload.sub,
+        correo: payload.correo,
+        rol: payload.rol,
+      }
+
+      next()
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error
+      }
+
+      throw ApiError.unauthorized(
+        'Token de autenticación inválido o expirado'
+      )
     }
   }
+)
 
-  if (!token) {
-    throw ApiError.unauthorized('Token de autenticación requerido (header o cookie)')
-  }
-
-  const payload = jwt.verify(token, env.JWT_SECRET) as JwtPayload
-
-  req.user = {
-    id: payload.sub,
-    correo: payload.correo,
-    rol: payload.rol,
-  }
-  next()
-})
-
-export function authorize(...roles: RolUsuario[]): RequestHandler {
+export function authorize(
+  ...roles: RolUsuario[]
+): RequestHandler {
   return (req, _res, next) => {
     if (!req.user) {
-      return next(ApiError.unauthorized('Debes iniciar sesión'))
+      return next(
+        ApiError.unauthorized(
+          'Debes iniciar sesión'
+        )
+      )
     }
+
     if (!roles.includes(req.user.rol)) {
-      return next(ApiError.forbidden(`Se requiere rol: ${roles.join(', ')}`))
+      return next(
+        ApiError.forbidden(
+          `Se requiere rol: ${roles.join(', ')}`
+        )
+      )
     }
+
     next()
   }
 }
