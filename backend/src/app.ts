@@ -26,11 +26,16 @@ export function createApp(): Express {
     },
   })
 
-  app.use(cors({ origin: 'http://localhost:5173', credentials: true })); app.use(limiter)
+  app.use(
+    cors({
+      origin: 'http://localhost:5173',
+      credentials: true,
+    })
+  )
+
+  app.use(limiter)
 
   app.use(helmet())
-
-  // cors was moved above
 
   app.use(cookieParser())
 

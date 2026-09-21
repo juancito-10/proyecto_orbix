@@ -1,8 +1,11 @@
 ﻿import { Router } from "express";
+
 import { authenticate } from "../../middlewares/auth";
 import { validate } from "../../middlewares/validate";
 import { asyncHandler } from "../../utils/asyncHandler";
+
 import * as authController from "./auth.controller";
+
 import {
   changePasswordSchema,
   loginSchema,
@@ -16,8 +19,8 @@ import { rateLimit } from "express-rate-limit";
 const router = Router();
 
 const loginLimiter1 = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 minutos
-  limit: 5, // Límite de 5 intentos
+  windowMs: 5 * 60 * 1000,
+  limit: 5,
   standardHeaders: "draft-7",
   legacyHeaders: false,
   skipSuccessfulRequests: true,
@@ -29,8 +32,8 @@ const loginLimiter1 = rateLimit({
 });
 
 const loginLimiter2 = rateLimit({
-  windowMs: 30 * 60 * 1000, // 30 minutos
-  limit: 10, // Si llega a 10 (es decir, falla otros 5), se bloquea por 30 mins
+  windowMs: 30 * 60 * 1000,
+  limit: 10,
   standardHeaders: "draft-7",
   legacyHeaders: false,
   skipSuccessfulRequests: true,
@@ -46,36 +49,57 @@ router.post(
   loginLimiter2,
   loginLimiter1,
   validate({ body: loginSchema }),
-  asyncHandler(authController.login),
+  asyncHandler(authController.login)
 );
-router.post("/refresh", asyncHandler(authController.refresh));
-router.post("/logout", asyncHandler(authController.logout));
+
+router.post(
+  "/refresh",
+  asyncHandler(authController.refresh)
+);
+
+router.post(
+  "/logout",
+  asyncHandler(authController.logout)
+);
+
 router.post(
   "/forgot-password",
-  validate({ body: forgotPasswordSchema }),
-  asyncHandler(authController.forgotPassword),
+  validate({
+    body: forgotPasswordSchema,
+  }),
+  asyncHandler(authController.forgotPassword)
 );
 
 router.post(
   "/reset-password",
-  validate({ body: resetPasswordSchema }),
-  asyncHandler(authController.resetPassword),
+  validate({
+    body: resetPasswordSchema,
+  }),
+  asyncHandler(authController.resetPassword)
 );
 
-router.get("/me", authenticate, asyncHandler(authController.perfil));
+router.get(
+  "/me",
+  authenticate,
+  asyncHandler(authController.perfil)
+);
 
 router.patch(
   "/me",
   authenticate,
-  validate({ body: updateProfileSchema }),
-  asyncHandler(authController.updateProfile),
+  validate({
+    body: updateProfileSchema,
+  }),
+  asyncHandler(authController.updateProfile)
 );
 
 router.patch(
   "/change-password",
   authenticate,
-  validate({ body: changePasswordSchema }),
-  asyncHandler(authController.changePassword),
+  validate({
+    body: changePasswordSchema,
+  }),
+  asyncHandler(authController.changePassword)
 );
 
 export default router;
