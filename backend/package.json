@@ -5,7 +5,7 @@
     "main":  "dist/server.js",
     "scripts":  {
                     "dev":  "tsx watch src/server.ts",
-                    "build":  "tsc \u0026\u0026 xcopy /E /I /Y src\\docs dist\\docs",
+                    "build": "tsc && cp -r src/docs dist/docs",
                     "start":  "node dist/server.js",
                     "prisma:generate":  "prisma generate",
                     "prisma:migrate":  "prisma migrate dev",
